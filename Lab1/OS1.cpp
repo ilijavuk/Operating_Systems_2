@@ -20,6 +20,16 @@ int main(int argc, char* argv[], char *envp[]){
 	setenv("MSG_KEY", key_in_string, true);
 
 	msgget(key, 0600 | IPC_CREAT);
+
+	
+    struct msqid_ds tmpbuf;
+	msgctl(key, IPC_STAT, &tmpbuf); 
+	tmpbuf.msg_qbytes = 5;
+	msgctl(key, IPC_SET, &tmpbuf); 
+
+	if(fork() == 0) 
+		execl("./potrosac", "potrosac", NULL);
+
 	for(int i = 1; i <= argc-1; i+=2){
 		switch (fork()) {
 			case -1:
@@ -33,29 +43,8 @@ int main(int argc, char* argv[], char *envp[]){
 					return 1;
 				}
 				exit(1);
-			default:
-				wait(NULL);
+			default: continue;
 		}
 	}	
-	execl("./potrosac", "potrosac", NULL);
-}
-
-void proizvodac(string niz, int id){
-	/*
-	for(int i = 0; i < niz.length(); i++){
-		posalji_poruku(niz[i],id);
-	}
-	posalji_poruku(NULL, id);
-	*/
-}
-
-void potrosac(){/*
-	string poruka = "";
-	while(IMA PORUKA){
-		let string nova_poruka = procitaj_poruku();
-		if(nova_poruka == NULL){
-			cout << "Proces " << id << " " << poruka << endl;
-		}
-	}	
-	*/
+	return 0;
 }

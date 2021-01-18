@@ -11,7 +11,7 @@ using namespace std;
 
 struct my_msgbuf {
     long mtype;
-    char mtext[200];
+    char mtext[1];
 };
 
 int main(int argc, char* argv[], char *envp[])
@@ -19,11 +19,14 @@ int main(int argc, char* argv[], char *envp[])
 	char *val = getenv("MSG_KEY");
     if (val!=NULL)
 	    cout << "[S] pronasao " << val << endl;
+    else
+        exit(0);
 
     if(argc < 3){
         cout << "Nedovoljno argumenata " << endl;
         exit(0);
     }
+
     struct my_msgbuf buf;
     int msqid;
     key_t key;
@@ -35,19 +38,20 @@ int main(int argc, char* argv[], char *envp[])
         exit(1);
     }
 
-   for(int i = 0; true; i++) {
-       if(argv[1][i] == '\0'){
+    buf.mtype = atoi(argv[2]);
+    for(int i = 0; true; i++) {
+        if(argv[1][i] == '\0'){
             buf.mtext[0] = ' ';
             if (msgsnd(msqid, (struct msgbuf *)&buf, 1, 0) == -1)
                 perror("msgsnd");
             break;
         }
         buf.mtext[0] = argv[1][i];
-        buf.mtype = atoi(argv[2]);
         
         if (msgsnd(msqid, (struct msgbuf *)&buf, 1, 0) == -1)
             perror("msgsnd");
     }
+    cout << "[Proizvodac] " << buf.mtype << " završio s radom " << endl; 
    
     return 0;
 }
