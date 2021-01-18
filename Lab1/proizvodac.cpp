@@ -21,39 +21,31 @@ int main(int argc, char* argv[], char *envp[])
     struct my_msgbuf buf;
     int msqid;
     key_t key;
-    char text[]="tekst";
-    strcpy(text,argv[1]);
-    cout << text << endl;
+    int id = getpid();
 
     key = 12345;
-    int id = getuid();
     
     if ((msqid = msgget(key, 0600 | IPC_CREAT)) == -1) {
         perror("msgget");
         exit(1);
     }
-    
-    /*
-       
-    memcpy(buf.mtext, text, strlen(text)+1);
-    buf.mtype = 1;
-    
-    if (msgsnd(msqid, (struct msgbuf *)&buf, strlen(text)+1, 0) == -1)
-            perror("msgsnd");
-    cout << id << " završio slanje " <<endl;
-    */
 
-        memcpy(buf.mtext, text, strlen(text)+1);
+   for(int i = 0; true; i++) {
+       if(argv[1][i] == '\0'){
+            buf.mtext[0] = ' ';
+            if (msgsnd(msqid, (struct msgbuf *)&buf, 1, 0) == -1)
+                perror("msgsnd");
+            break;
+        }
+        buf.mtext[0] = argv[1][i];
         buf.mtype = 1;
-	//for(int i = 0; i < strlen(text)-1; i++){
-        //buf.mtext[0] = text[i];;
         
-     //   if (msgsnd(msqid, (struct msgbuf *)&buf, strlen(text)+1, 0) == -1)
-       //     perror("msgsnd");
-	//}
+        if (msgsnd(msqid, (struct msgbuf *)&buf, 1, 0) == -1)
+            perror("msgsnd");
+    }
+   
+    cout << id << " zavrsio slanje " << endl;
     
-  
-    cout << id << " završio slanje " <<endl;
     return 0;
 }
 
