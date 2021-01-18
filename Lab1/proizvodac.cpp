@@ -37,20 +37,21 @@ int main(int argc, char* argv[], char *envp[])
         perror("msgget");
         exit(1);
     }
+    
+    struct msqid_ds tmpbuf;
+	msgctl(msqid, IPC_STAT, &tmpbuf); 
+	tmpbuf.msg_qbytes = 5;
+	msgctl(msqid, IPC_SET, &tmpbuf); 
 
     buf.mtype = atoi(argv[2]);
-    for(int i = 0; true; i++) {
-        if(argv[1][i] == '\0'){
-            buf.mtext[0] = ' ';
-            if (msgsnd(msqid, (struct msgbuf *)&buf, 1, 0) == -1)
-                perror("msgsnd");
-            break;
-        }
+    for(int i = 0; argv[1][i] != '\0'; i++) {
         buf.mtext[0] = argv[1][i];
-        
         if (msgsnd(msqid, (struct msgbuf *)&buf, 1, 0) == -1)
             perror("msgsnd");
     }
+    buf.mtext[0] = ' ';
+    if (msgsnd(msqid, (struct msgbuf *)&buf, 1, 0) == -1)
+        perror("msgsnd");
     cout << "[Proizvodac] " << buf.mtype << " završio s radom " << endl; 
    
     return 0;

@@ -20,13 +20,7 @@ int main(int argc, char* argv[], char *envp[]){
 	setenv("MSG_KEY", key_in_string, true);
 
 	msgget(key, 0600 | IPC_CREAT);
-
 	
-    struct msqid_ds tmpbuf;
-	msgctl(key, IPC_STAT, &tmpbuf); 
-	tmpbuf.msg_qbytes = 5;
-	msgctl(key, IPC_SET, &tmpbuf); 
-
 	if(fork() == 0) 
 		execl("./potrosac", "potrosac", NULL);
 
@@ -46,5 +40,9 @@ int main(int argc, char* argv[], char *envp[]){
 			default: continue;
 		}
 	}	
+
+	wait(NULL);	
+	for(int i = 1; i <= argc-1; i+=2)
+		wait(NULL);
 	return 0;
 }
