@@ -16,14 +16,19 @@ struct my_msgbuf {
 
 int main(int argc, char* argv[], char *envp[])
 {
-    if(argc < 1)
+	char *val = getenv("MSG_KEY");
+    if (val!=NULL)
+	    cout << "[S] pronasao " << val << endl;
+
+    if(argc < 3){
+        cout << "Nedovoljno argumenata " << endl;
         exit(0);
+    }
     struct my_msgbuf buf;
     int msqid;
     key_t key;
-    int id = getpid();
-
-    key = 12345;
+    key = atoi(val);
+    cout << "[proizvodac] id: " << argv[2] << endl; 
     
     if ((msqid = msgget(key, 0600 | IPC_CREAT)) == -1) {
         perror("msgget");
@@ -38,14 +43,12 @@ int main(int argc, char* argv[], char *envp[])
             break;
         }
         buf.mtext[0] = argv[1][i];
-        buf.mtype = 1;
+        buf.mtype = atoi(argv[2]);
         
         if (msgsnd(msqid, (struct msgbuf *)&buf, 1, 0) == -1)
             perror("msgsnd");
     }
    
-    cout << id << " zavrsio slanje " << endl;
-    
     return 0;
 }
 
