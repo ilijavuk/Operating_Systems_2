@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
@@ -14,12 +15,18 @@ int main(void) {
     fstream dat;
     dat.open("podatci.txt", ios::in);
     int broj;
-    //srand(time(NULL));
+    srand(time(NULL));
 
+    
+
+    char rezultat[5];
+    char unos[50];
     int pipe1[2];
     int pipe2[2];
-    char rezultat[20];
-    char unos[50];
+
+    
+
+    //for(int i = 0; i < 4; i++){
 
         if(pipe(pipe1) == -1 || pipe(pipe2) == -1)
             exit(1);
@@ -32,32 +39,30 @@ int main(void) {
             case 0:{
                 close(pipe1[CITANJE]);
                 close(pipe2[PISANJE]);
-                for(int i = 0; i < 3; i++){
-                    dat >> broj;
-                    //broj = rand()%11;
-                    cout << broj << " = ";
-                    cin >> unos;
-                    strcat(unos, "\n");
+                dat >> broj;
+                //broj = rand()%11;
+                cout << broj << " = ";
+                cin >> unos;
+                strcat(unos, "\n");
 
-                    write(pipe1[PISANJE], unos, strlen(unos));
-                    if(read(pipe2[CITANJE], rezultat, sizeof(rezultat)) != -1) {
-                        int tmp_rez = atoi(rezultat);
-                        if(tmp_rez!=0){
-                            if(tmp_rez == broj){
-                                cout << "Točno!" << endl;
-                            }
-                            else{
-                                cout << "Netočno " << endl;
-                            }
+                write(pipe1[PISANJE], unos, strlen(unos));
+                int nbytes = read(pipe2[CITANJE], rezultat, sizeof(rezultat));
+                if(nbytes >= 0) {
+                    if(rezultat[CITANJE]=='('){
+                        cout << "Neispravan izraz" << endl;
+                    }
+                    else{
+                        int usp = atoi(rezultat);
+                        if(usp==broj){
+                            cout << "Točno!" << endl;
                         }
                         else{
-                            cout << "Pogrešan unos" << endl;
+                            cout << "Točan odgovor je: "<< usp << endl;
                         }
                     }
                 }
                 close(pipe1[PISANJE]);
                 close(pipe2[CITANJE]);
-                
                 break;
             }
 
@@ -71,9 +76,9 @@ int main(void) {
                 close(pipe2[PISANJE]);
                 execlp("bc", "bc", NULL);
             }
-        }   
+        }
         
         wait(NULL);   
-        
+    //}
     return 0;
 }
