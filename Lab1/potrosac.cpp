@@ -62,7 +62,7 @@ int main(int argc, char* argv[], char *envp[])
             {
                 counter++;
                 sleep(1);
-                if(counter == 10)
+                if(counter == 5)
                     break;
             }
             else
